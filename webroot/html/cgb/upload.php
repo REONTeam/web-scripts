@@ -1,7 +1,9 @@
 <?php
 // This is a very small script that asks the GBC to send an Authentication header along with the data.
-// We'll probably not actually use the authentication header and instead do something in the adapter script, but this is how N did it.
+define('CORE_PATH', dirname(dirname(__DIR__)) . '/core');
+require_once(CORE_PATH.'/core.php');
 
+// Probably will be abstracted into a function.
 if(!isset($_SERVER["HTTP_GB_AUTH_ID"])) { // is the Auth ID set?
     if(!isset($_SERVER["HTTP_AUTHORIZATION"])) { // If Auth ID isnt set but there's an Auth header, that means they've sent us something to check.
         http_response_code(401);
@@ -10,11 +12,57 @@ if(!isset($_SERVER["HTTP_GB_AUTH_ID"])) { // is the Auth ID set?
         exit();
     } else {
         header("Gb-Auth-ID: theauthworked");
+		exit();
     }
 }
+    function test_input($data) {
+        $data = trim($data);
+        $data = stripslashes($data);
+        $data = htmlspecialchars($data);
+        return $data;
+    }
+    
+    $valid = true;
+    $file = "";
+    
+    if (isset($_GET["name"]))
+    {
+        if ($_GET["name"] == "")
+        {
+            $valid = false;
+        }
+        else
+        {
+            $file = test_input($_GET["name"]);
+            $file = ltrim($file, '/');
+        }
+    }
+    else
+    {
+        $valid = false;
+    }
+    
+    if ($valid)
+    {
+        if (file_exists($dir.$file))
+        {
+            include($dir.$file);
+            exit;
+        }
+        else
+        {
+            #else 404 not found.
+            http_response_code(404);
+            die();
+        }
+    }
+    else
+    {
+        #page string isn't valid, we'll just 404 to cover our butts.
+        http_response_code(404);
+        die();
+    }
 
-http_response_code(200);
-exit();
 
 /* (These docs credited to Háčky from Glitch City)
 An authentication attempt begins by sending an HTTP GET request, to which the server responds with 401 Unauthorized and a WWW-Authenticate: GB00 name="…" header, where the name is an arbitrary 36-byte value encoded in Base64.

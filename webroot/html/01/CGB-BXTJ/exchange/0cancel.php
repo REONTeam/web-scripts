@@ -1,11 +1,10 @@
 <?php
-require "/var/www/cgb/core/core.php";
-require "/var/www/cgb/core/pokemon/func.php";
-require "/var/www/cgb/core/database.php";
+require CORE_PATH.'/pokemon/func.php';
+require CORE_PATH.'/database.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405); // HTTP405 Method not Allowed.
-    die("405 Method not Allowed"); // Exit but scarier!
+    die('405 Method not Allowed'); // Exit but scarier!
 };
 
 $data = decodeExchange("php://input", false); // This makes a nice array of data.
